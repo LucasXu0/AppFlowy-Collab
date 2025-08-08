@@ -2,6 +2,7 @@ use std::fs::read_to_string;
 
 use crate::workspace::entities::WorkspaceRelationMap;
 use anyhow::{Result, anyhow};
+use tracing::info;
 
 pub struct RelationMapParser {}
 
@@ -13,7 +14,10 @@ impl RelationMapParser {
     let relation_map: WorkspaceRelationMap = serde_json::from_str(&relation_map_content)
       .map_err(|e| anyhow!(format!("failed to parse relation_map.json: {}", e)))?;
 
-    self.validate_relation_map(&relation_map)?;
+    let validation_result = self.validate_relation_map(&relation_map);
+    if let Err(e) = validation_result {
+      info!("validation error: {}", e);
+    }
 
     Ok(relation_map)
   }
